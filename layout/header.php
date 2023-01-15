@@ -60,6 +60,7 @@ include('script_php/db.php');
     </div>
 
 </nav>
+
 <script src="js/auth_script.js"></script>
 <script src="js/prepod_script.js"></script>
 

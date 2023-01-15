@@ -4,7 +4,7 @@ include('db.php');
 $action=$_POST['action'];
 
 if($action=="save_prepod"){
-    save_prepod($db);
+    save_prepod();
 }else if ($action=="save_content"){
 $content=$_POST['content'];
 

@@ -35,7 +35,6 @@
                 ?>
 
                 <div class="main_midder">
-
                     <div id="main_midderBtn" class="main_midderBtn">
                         <button type="button" class="header_menuBtn" id="add_newPrepod">Добавить преподователя</button>
                         <button type="button" class="header_menuBtn" id="correct_page">Pедактировать главную страницу</button>
@@ -78,11 +77,13 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
     </div>
-
+    <form action="prepod_script.php" method="POST">
+    <h2 class="text-light w-50 m-2"> Введите название работы </h2>
+    <input class="w-50 m-3" type="text" id="test_name">
+    <button type="suubmit" class="w-25 btn btn-primary m-2" id="add_testName">Добавить вопрос</button></form>
 </body>
 <script src="js/admin_script.js"></script>
 <!-- Summernote JS - CDN Link -->
@@ -93,5 +94,4 @@
         $('.dropdown-toggle').dropdown();
     });
 </script>
-
 </html>

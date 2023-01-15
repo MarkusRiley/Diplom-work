@@ -8,7 +8,6 @@
 
     <title>Document</title>
 </head>
-
 <body>
     <?php
     ?>
@@ -34,6 +33,7 @@
                         <?php
                         include('script_php/content_handler.php');
                         ?>
+
                     </div>
                 </div>
 
