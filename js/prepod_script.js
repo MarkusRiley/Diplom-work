@@ -62,7 +62,7 @@ $('body').on('click', "#save_question", function () {// Сохранить во�
         manek2 = "#correct" + i;
         answer = $(manek).val();
         if ($(manek2).is(':checked')) correct = "on"; else correct = "off";
-        info = [i, answer, correct];
+        info = [i, answer, correct,question_id];
         array.push(info);
         console.log(array);
         get = [question_id, question, array];
@@ -185,7 +185,7 @@ $('body').on('click', "#save_change", function () {
         manek2 = "#edit_correct" + i;
         answer = $(manek).val();
         if ($(manek2).is(':checked')) correct = "on"; else correct = "off";
-        info = [i, answer, correct];
+        info = [i, answer, correct,question_id];
         array.push(info);
         get = [question_id, question, array];
     }
