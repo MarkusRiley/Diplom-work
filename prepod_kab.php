@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
     <link rel="stylesheet" href="style/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <!-- //Summernote CSS - CDN Link -->
@@ -28,7 +29,6 @@
                 $array = $qwer->fetch();
                 echo $array[5], " ", $array[6], " ", $array[7], " ", ":", " ", $array[8];
                 echo '<input type="hidden" id="prepod_id" value="' . $array[1] . '">'
-
                 ?>
             </div>
         </div>
@@ -39,9 +39,12 @@
                     <button type="button" class="btn bg-opacity-0 text-light border-info" id="back_toMain">Главная
                         страница
                     </button>
-                    <button type=" button" class="btn bg-opacity-0 text-light border-info" id="create_test">Создать
+                    <button type="button" class="btn bg-opacity-0 text-light border-info" id="create_test">Создать
                         тест
                     </button>
+                    <button type="button" class="btn bg-opacity-0 text-light border-info" id="test_list">Список тестов
+                    </button>
+
                 </div>
             </div>
             <!-- right-midder -->

@@ -55,7 +55,7 @@ $('#save_prepod').on('click', function () {
                 'login': login,
                 'pass': pass,
                 'name': name,
-                'surname': surname,
+                'surname':surname,
                 'patronymic': patronymic,
                 'lesson': lesson
             },

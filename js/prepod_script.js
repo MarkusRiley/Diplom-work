@@ -11,7 +11,6 @@ $('#create_test').on('click', function () {// Создать тест и вве�
     localStorage.setItem('question_id', question_id);
 });
 
-
 $('body').on('click', '#add_testName', function () {// дсохранить имя теста
     var answer_id = 0;
     question_id = +localStorage.getItem('question_id') + 1;
@@ -62,7 +61,7 @@ $('body').on('click', "#save_question", function () {// Сохранить во�
         manek2 = "#correct" + i;
         answer = $(manek).val();
         if ($(manek2).is(':checked')) correct = "on"; else correct = "off";
-        info = [i, answer, correct,question_id];
+        info = [i, answer, correct, question_id];
         array.push(info);
         console.log(array);
         get = [question_id, question, array];
@@ -106,7 +105,7 @@ $('body').on('click', "#question", function () {// открывает редак
     $('#save_test').css('display', 'none');
     $('.right_prepodMidder').append('<div id="solo_questionMenu" style="display: flex;flex-direction: column;"><h2 class="text-light w-50 m-2">Вопрос:</h2>' + '<input type="text"id="edit_question" value="' + question_array[1] + '">' + '<h2 class="text-light w-50 m-2">Варианты ответов</h2>')
     for (let i = 0; i < answer_array.length; i++) {
-        $('#solo_questionMenu').append('<div id="answer_block' + i + '" style="display: flex; flex-direction: row;"><input class="m-2 " type="text"id="edit_answer' + answer_array[i][0] + '" value="' + answer_array[i][1] + '">');
+        $('#solo_questionMenu').append('<div id="answer_block' + i + '" style="display: flex; flex-direction: row;"><input class="m-2 " type="text" id="edit_answer' + answer_array[i][0] + '" value="' + answer_array[i][1] + '">');
         let temp = "#answer_block" + i;
         console.log(temp);
         if (answer_array[i][2] == "on") {
@@ -118,6 +117,7 @@ $('body').on('click', "#question", function () {// открывает редак
     }
     $('.right_prepodMidder').append('<div id="solo_questionButton"><button class="w-25 btn btn-secondary m-2" type="button" id="add_newAnswer">Добавить ответ</button>' + '<button class="w-25 btn btn-warning m-2" type="button" id="save_change">Сохранить изменения</button>' + '<button class="w-25 btn btn-secondary m-2"type="button"id="back_toBack">Вернуться</button></div>')
 })
+
 $('body').on('click', "#delete_answer", function () {
     let temp_questionId = localStorage.getItem('temp_questionId');
     let last_array = JSON.parse(localStorage.getItem('answer_array'));
@@ -166,6 +166,7 @@ $('body').on('click', "#add_newAnswer", function () {
     $('#solo_questionMenu').append('<div id="answer_block"  style="display: flex; flex-direction: row;"><input class="m-2 " type="text"id="edit_answer' + answer_id + '">' + '<input type="checkbox"id="edit_correct' + answer_id + '" style="margin: 0;"><button style="width: 20px; padding:none;height: 20px; border-radius: 50%;background: none; border: none;" id="delete_answer" data-id="' + answer_id + '"><img src="img/cancel.png" alt="" style="width: 20px;height: 20px;"></button></div>');
     localStorage.setItem('quantity_answer', answer_id);
 })
+
 $('body').on('click', "#save_change", function () {
     var question_id = +localStorage.getItem('temp_questionId');
     var question = $('#edit_question').val();
@@ -185,7 +186,7 @@ $('body').on('click', "#save_change", function () {
         manek2 = "#edit_correct" + i;
         answer = $(manek).val();
         if ($(manek2).is(':checked')) correct = "on"; else correct = "off";
-        info = [i, answer, correct,question_id];
+        info = [i, answer, correct, question_id];
         array.push(info);
         get = [question_id, question, array];
     }
@@ -210,6 +211,7 @@ $('body').on('click', "#save_change", function () {
         '<button class="w-25 btn btn-warning m-2" id="save_test">Сохранить тест</button>' +
         '<button class="w-25 btn btn-primary m-2" id="new_question">Новый вопрос</button>');
 });
+
 $('body').on('click', "#back_toBack", function () {
     $('#solo_questionMenu').remove();
     $('#question_menu').css('display', 'flex');
@@ -217,14 +219,15 @@ $('body').on('click', "#back_toBack", function () {
     $('#save_test').css('display', 'block');
     $('#solo_questionButton').remove();
 });
+
 $('body').on('click', "#save_test", function () {
+
     let test_array = JSON.parse(localStorage.getItem('answer_array'));
     let test_name = localStorage.getItem('test_name');
     let prepod_id = $('#prepod_id').val();
     $.ajax({
         url: "../script_php/prepod_script.php",
         method: "POST",
-        type: "json",
         data: {
             action: 'test_save',
             'prepod_id': prepod_id,
@@ -232,14 +235,291 @@ $('body').on('click', "#save_test", function () {
             'test_name': test_name
         },
         success: function (data) {
-            console.log(data);
+            location.reload();
+            localStorage.clear();
         },
         error: function () {
             alert("ERROR");
         }
     })
 })
+
 $('#back_toMain').on('click', function () {
-    window.location.href = "index.php";
+    window.location.href = "/index.php";
+})
+//Список тестов
+$('#test_list').on('click', function () {
+    $('.right_prepodMidder').empty()
+    $.ajax({
+        url: "../script_php/prepod_script.php",
+        method: "POST",
+        dataType: "json",
+        data: {
+            action: 'test_list',
+        },
+        success: function (data) {
+            $('.right_prepodMidder').append('<div id="test_menu" class="d-flex flex-column justify-content-center align-item-center"></div>')
+            for (let i = 0; i < data.length; i++) {
+                $('#test_menu').append(
+                    '<button type="button" class="btn bg-opacity-0 text-light border-info m-2" data-id="' + data[i][0] + '" id="edit_test">Предмет: ' + data[i][2] + '. Кол-во вопросов: ' + data[i][3] + '.</button>'
+                )
+            }
+        },
+        error: function () {
+            alert("danger");
+        }
+    })
 })
 
+
+$('body').on('click', "#edit_test", function () {
+    let work_id = $(this).attr("data-id");
+    $.ajax({
+        url: "../../script_php/prepod_script.php",
+        method: "POST",
+        dataType: "json",
+        data: {
+            action: 'test_array',
+            'id_work': work_id,
+        },
+        success: function (data) {
+            let massive = data;
+            let question = [];
+            let answer_temp = [];
+            for (let i = 0; i < massive.length; i++) {
+                let array = [massive[i][0], massive[i][1]]
+                question.push(array);
+                answer_temp[i] = massive[i][2];
+            }
+            let count = answer_temp.length;
+            let answer_array = [];
+            for (let j = 0; j < count; j++) {
+                let answer = [];
+                answer = answer_temp[j]
+                answer.splice(0, 3);
+                answer_array.push(answer);
+            }
+            let question_answer = [];
+            for (let g = 0; g < question.length; g++) {
+                let answer_res = [];
+                answer_res = [question[g], answer_array[g]];
+                question_answer.push(answer_res);
+            }
+            localStorage.setItem('answer_fromDB', JSON.stringify(question_answer));
+            window.location.href = 'pages/prepod/test_info.php?test_id=' + work_id;
+        },
+        error: function () {
+            console.log('error');
+        }
+    })
+})
+
+$('.question_edit').on('click', function () {
+    let question_id = $(this).attr("data-id");
+    let work_id = $('#work_id').val();
+    localStorage.setItem('work_id',work_id);
+    $.ajax({
+        url: "../../script_php/prepod_script.php",
+        method: "POST",
+        dataType: "json",
+        data: {
+            action: 'show_test',
+            'id_work': work_id,
+            'question_id': question_id
+        },
+        success: function (data) {
+            let question = data[0];
+            let answer_array = data[1];
+            let count = answer_array.length;
+            let manek;
+            let manek2;
+            count += 1;
+            localStorage.setItem('answer_massive', JSON.stringify(answer_array));
+            localStorage.setItem('question', JSON.stringify(question));
+            $('#question_modal').empty();
+            $('#question_modal').append(
+                '<div class="d-flex flex-row" id="question_editing"><p style="font-weight: bold;" id="question">' + question[1] + '</p><button type="button"  id="edit_question" data-id="' + question[0] + '" style="background: none; border: none;"><img src="../../img/edit_button.png"></button></div>'
+            );
+            for (let i = 0; i < answer_array.length; i++) {
+                if (answer_array[i][2] == "on") {
+                    $('#question_modal').append(
+                        '<div class="answer_block' + answer_array[i][0] + ' d-flex flex-row m-2"><p id="answer' + answer_array[i][0] + '" style="font-weight: bold;">' + answer_array[i][1] + '</p>&nbsp;&nbsp; <input type="checkbox" class="correct me-2" id="correct' + answer_array[i][0] + '" checked> <button data-id="' + answer_array[i][0] + '" type="button" id="edit_answer" style="background: none; border-color: white; border-radius: 10%" class="edit_button' + answer_array[i][0] + '"><img src="../../img/edit_button.png" class="w-50"></button>' +
+                        '<button  data-id="' + answer_array[i][0] + '" type="button" id="delete_answerButt" style="background: none;border-color: white;border-radius: 10%" class="delete_answerButt' + answer_array[i][0] + '"><img src="../../img/delete_button.png" class="w-50"></button></div>'
+                    );
+                } else {
+                    $('#question_modal').append(
+                        '<div class="answer_block' + answer_array[i][0] + ' d-flex flex-row m-2"><p style="font-weight: bold;" id="answer' + answer_array[i][0] + '">' + answer_array[i][1] + '</p>&nbsp;&nbsp; <input id="correct' + answer_array[i][0] + '" type="checkbox" class="correct me-2" > <button type="button" id="edit_answer" style="background: none; border-color: white;border-radius: 10%" data-id="' + answer_array[i][0] + '" class="edit_button' + answer_array[i][0] + '"><img src="../../img/edit_button.png" class="w-50" id="img' + answer_array[i][0] + '"></button> ' +
+                        '<button  data-id="' + answer_array[i][0] + '" type="button" id="delete_answerButt" style="background: none;border-color: white;border-radius: 10%" class="delete_answerButt' + answer_array[i][0] + '"><img src="../../img/delete_button.png" class="w-50"></button></div>'
+                    );
+                }
+                $('#question_modalFooter').empty();
+                $('#question_modalFooter').append(
+                    '<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>' +
+                    '<button type="button" class="btn btn-light" id="save_edit" data-id="' + question_id + '">Сохранить</button>' +
+                    '<button class="btn btn-warning" id="add_anotherAnswer" data-id="' + work_id + '">Добавить ответ</button>');
+            }
+        },
+        error: function () {
+            console.log('error');
+        }
+    })
+});
+$('body').on('click', "#save_edit", function () {
+    let question_answer=JSON.parse(localStorage.getItem('answer_fromDB'));
+    let question = JSON.parse(localStorage.getItem('question'));
+    let answer_array = JSON.parse(localStorage.getItem('answer_massive'));
+    let count_answer = answer_array.length;
+    let general_massive=[question,answer_array];
+    console.log(question_answer);
+});
+
+$('body').on('click', "#edit_question", function () {
+    let question = JSON.parse(localStorage.getItem('question'));
+    $('#question').replaceWith('<input type="text" value="' + question[1] + '" id="question_input">');
+    $('#edit_question').css('display', 'none');
+    $('#question_editing').append(
+        '<div class="d-flex flex-row" id="question_buttonMenu"><button style="background: none; border-color: white;border-radius: 10%" type="button" class="save_question"><img class="w-50" src="../../img/save_button.png"></button>' +
+        '<button style="background: none; border-color: white;border-radius: 10% " type="button" type="button" class="question_cancel"><img class="w-50" src="../../img/cancel_button.png"></button>' +
+        '</div>');
+
+})
+
+function question_exit(question) {
+    $('#question_input').replaceWith('<p style="font-weight: bold;" id="question">' + question + '</p>');
+    $('#question_buttonMenu').remove();
+    $('#edit_question').css('display', 'block');
+}
+
+$('body').on('click', ".question_cancel", function () {
+    let question_array = JSON.parse(localStorage.getItem('question'));
+    let question = question_array[1];
+    question_exit(question);
+})
+
+$('body').on('click', ".save_question", function () {
+    let question_array = JSON.parse(localStorage.getItem('question'));
+    let question = $('#question_input').val();
+    question_array[1] = question;
+    $('#question_input').replaceWith('<p style="font-weight: bold;" id="question">' + question + '</p>');
+    $('#question_buttonMenu').remove();
+    $('#edit_question').css('display', 'block');
+    question_exit(question);
+    localStorage.setItem('question', JSON.stringify(question_array));
+})
+
+$('body').on('click', "#delete_answerButt", function () {
+    let answer_id = $(this).attr("data-id");
+    let answer_array = JSON.parse(localStorage.getItem('answer_massive'));
+    let new_answerArr = JSON.parse(localStorage.getItem('answer_massive'));
+    let delete_answerSample = ".answer_block" + answer_id;
+    $(delete_answerSample).remove();
+    for (let i = 0; i < new_answerArr.length; i++) {
+        if (new_answerArr[i][0] == answer_id) {
+            new_answerArr.splice(i, 1);
+        }
+    }
+    // for(let j=0;j<new_answerArr.length;j++){
+    //     new_answerArr[j][0]=answer_array[j][0];
+    // }
+    let answer_count = new_answerArr.length;
+    localStorage.setItem('answer_count', answer_count);
+    localStorage.setItem('answer_massive', JSON.stringify(new_answerArr));
+    localStorage.setItem('first_answerArr', JSON.stringify(answer_array));// первоначальный массив с ответами на конкретный вопросс
+})
+
+$('body').on('click', "#edit_answer", function () {
+    let answer_id = $(this).attr("data-id");
+    let manek = "#answer" + answer_id;//переменная для подставления в аппенд подходящего под айди блока ответа
+    let manek2 = ".edit_button" + answer_id;
+    let manek3 = '.answer_block' + answer_id;
+    console.log(manek3);
+    let answer_array = JSON.parse(localStorage.getItem('answer_massive'));
+    let answer;
+    console.log(answer_array);
+    for (let i = 0; i < answer_array.length; i++) {
+        if (answer_array[i][0] == answer_id) {
+            answer = answer_array[i][1];
+        }
+    }
+    $(manek).replaceWith('<input type="text" value="' + answer + '" id="answer_input' + answer_id + '"> ');
+    $(manek2).css('display', 'none');
+    $(manek3).append(
+        '<div class="d-flex flex-row" id="button_menu' + answer_id + '"><button style="background: none; border-color: white;border-radius: 10%" type="button" class="save_answer" data-id="' + answer_id + '"><img class="w-50" src="../../img/save_button.png"></button>' +
+        '<button style="background: none; border-color: white;border-radius: 10% " type="button" type="button" class="cancel" data-id="' + answer_id + '"><img class="w-50" src="../../img/cancel_button.png"></button>' +
+        '</div>')
+});
+
+function exit(answer_id, answer_array) {
+    let manek = "#button_menu" + answer_id;
+    let manek2 = "#answer_input" + answer_id;
+    let manek3 = ".edit_button" + answer_id;
+    $(manek).remove();
+    $(manek3).css('display', 'block');
+    for (let i = 0; i < answer_array.length; i++) {
+        if (answer_array[i][0] == answer_id)
+            $(manek2).replaceWith('<p style="font-weight: bold;" id="answer' + answer_array[i][0] + '">' + answer_array[i][1] + '</p>')
+    }
+}
+
+$('body').on('click', ".cancel", function () {
+    let answer_array = JSON.parse(localStorage.getItem('answer_massive'));
+    let answer_id = $(this).attr("data-id");
+    exit(answer_id, answer_array);
+});
+
+$('body').on('click', ".save_answer", function () {
+    let answer_array = JSON.parse(localStorage.getItem('answer_massive'));
+    let answer_id = $(this).attr("data-id");
+    let answer_sample = "#answer_input" + answer_id;
+    let answer = $(answer_sample).val();
+    let correct_sample = "#correct" + answer_id;
+    let correct;
+    console.log(answer_array);
+    if ($(correct_sample).is(':checked')) correct = "on"; else correct = "off";
+    for (let i = 0; i < answer_array.length; i++) {
+        if (answer_array[i][0] == answer_id) {
+            answer_array[i][1] = answer;
+            answer_array[i][2] = correct;
+        }
+    }
+    let answer_count = answer_array.length;
+    console.log(answer_array);
+    exit(answer_id, answer_array);
+    // for(let j=0;j<new_answerArr.length;j++){
+    //     new_answerArr[j][0]=answer_array[j][0];
+    // }
+    localStorage.setItem('answer_massive', JSON.stringify(answer_array));
+});
+
+$('body').on('click', "#add_anotherAnswer", function () {
+    let answer_array = JSON.parse(localStorage.getItem('answer_massive'));
+    let answer_count = answer_array.length;
+    answer_newCount = answer_count += 1;
+    let arr = [answer_count, 0, 0, 1];
+    answer_array.push(arr);
+    $('#question_modal').append(
+        '<div class="answer_block' + answer_newCount + ' d-flex flex-row m-2"">' +
+        '<input type="text" id="answer_input' + answer_newCount + '">&nbsp;&nbsp; ' +
+        '<input type="checkbox" class="correct me-2" id="correct' + answer_newCount + '" checked>' +
+        '<button  data-id="' + answer_newCount + '" type="button" id="delete_answerButt" style="background: none;border-color: white;border-radius: 10%" class="delete_answerButt' + answer_newCount + '"><img src="../../img/delete_button.png" class="w-50"></button>' +
+        '<button data-id="' + answer_newCount + '" type="button" id="edit_answer" style="background: none; border-color: white; border-radius: 10%; display:none;" class="edit_button' + answer_newCount + '"><img src="../../img/edit_button.png" class="w-50"></button> ' +
+        '<div class="d-flex flex-row" id="button_menu' + answer_newCount + '">' +
+        '<button style="background: none; border-color: white;border-radius: 10%" type="button" class="save_answer" data-id="' + answer_newCount + '"><img class="w-50" src="../../img/save_button.png"></button>' +
+        '<button style="background: none; border-color: white;border-radius: 10% " type="button" type="button" class="cancel" data-id="' + answer_newCount + '"><img class="w-50" src="../../img/cancel_button.png"></button>' +
+        '</div></div>'
+    );
+    console.log(answer_array);
+    localStorage.setItem('answer_massive', JSON.stringify(answer_array));
+});
+
+$('#add_newQuestion').on('click', function() {
+    let question_array = JSON.parse(localStorage.getItem('question'));
+    let count = question_array.length;
+    console.log(question_array);
+    console.log(count);
+
+    // $('#question_menuButton').remove();
+    // $('#question_modal').append(
+    //     <div></div>
+    // );
+})

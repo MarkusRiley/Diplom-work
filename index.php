@@ -21,7 +21,6 @@
                 </div>
 
             </div>
-
             <div class="main_rightContainer">
 
                 <?php
@@ -36,7 +35,6 @@
 
                     </div>
                 </div>
-
             </div>
 
             <div class="main_footer">
