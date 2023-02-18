@@ -16,7 +16,7 @@
     <!-- //Summernote CSS - CDN Link -->
     <title>Document</title>
 </head>
-<body class="">
+<body>
 <div class="container">
     <div class="main_container d-flex flex-column">
         <div class="prepod_header">

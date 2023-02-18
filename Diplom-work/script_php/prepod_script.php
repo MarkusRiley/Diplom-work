@@ -1,6 +1,5 @@
 <?php
-include($_SERVER["DOCUMENT_ROOT"] . '/script_php/db.php');
-session_start();
+include($_SERVER[DOCUMENT_ROOT] . '/script_php/db.php');
 $action = $_POST['action'];
 $_SESSION['action'] = $action;
 if ($action == "test_save") {
@@ -11,158 +10,19 @@ if ($action == "test_save") {
     edit_test($db);
 } else if ($action == "show_test") {
     show_test($db);
-} else if ($action == "test_array") {
+} else if ($action == "experiment") {
+    experiment($db);
+}else if($action=="test_array"){
     test_array($db);
-} else if ($action == "edit_massive") {
+}else if($action == "edit_massive"){
     edit_massive($db);
-} else if ($action == "save_edit") {
-    save_edit($db);
 }
 
 
-function save_edit($db)
-{
-    $work_id = $_POST['work_id'];
-    $question_answer = $_POST['question_answer'];
-    $query = $db->prepare("DELETE FROM `question` WHERE `id_work` = ? ");
-    $query->execute([$work_id]);
-    $query = $db->prepare("DELETE FROM `answer` WHERE `work_id` = ? ");
-    $query->execute([$work_id]);
-    $question_arr = [];//создаем отдельные пусты массивы вопросов и ответов, чтобы позже их можно было закинуть в базу данных
-    $question_massive=[];
-    $question_count = count($question_answer);
 
-    for ($i = 0; $i < $question_count; $i++) {
-        $question_arr[$i] = $question_answer[$i][0];
-    }
+function test_array($db){
 
-    for ($i = 0; $i < $question_count; $i++) {
-        array_push($question_massive, $question_arr[$i][0],$work_id,$question_arr[$i][1], $question_arr[$i][2]);
-    }
-    $sql = "INSERT INTO `question`(`id_inTest`, `id_work`, `question`, `type`) VALUES ";//Запрос в строку для оформления цикла
-    for ($i = 0; $i < $question_count; $i++) {
-        $sql_question_dop = "(?,?,?,?),";//стррока для добавления в базу через pdo
-        $sql = $sql . $sql_question_dop;// полная строка запроса pdo
-    }
-    save_db($db, $sql, $question_massive);
-
-    $answer_temp = [];
-    for ($j = 0; $j < $question_count; $j++) {
-        $answer_temp[$j] = $question_answer[$j][1];
-    }
-    $answer_arr = [];
-    for ($i = 0; $i < count($answer_temp); $i++) {
-        for ($j = 0; $j < count($answer_temp[$i]); $j++) {
-            array_push($answer_arr, $work_id, $question_arr[$i][0], $answer_temp[$i][$j][0], $answer_temp[$i][$j][1]);
-        }
-
-    }
-    $answer=[];
-    for($i=0;$i<count($answer_temp);$i++){
-        for($j=0;$j<count($answer_temp[$i]);$j++){
-            array_push($answer,$answer_temp[$i][$j]);
-        }
-    }
-    $sql = "INSERT INTO `answer` (`work_id`, `question_id`, `answer`, `correct`) VALUES ";
-//    echo json_encode($answer_arr,JSON_UNESCAPED_UNICODE);
-    for ($i = 0; $i < count($answer); $i++) {
-        $sql_question_dop = "(?,?,?,?),";//стррока для добавления в базу через pdo
-        $sql = $sql . $sql_question_dop;
-    }
-    save_db($db, $sql, $answer_arr);
-}
-
-function save_test($db)
-{
-    $test_name = $_POST['test_name'];
-    $test_array = $_POST['test_array'];
-    $prepod_id = $_POST['prepod_id'];
-    $number = count($test_array);
-    $query = $db->prepare("INSERT INTO `work`( `id_prepod`, `name_work`, `question_amount`) VALUES (?,?,?)");
-    $query->execute([$prepod_id, $test_name, $number]);
-    $query = $db->prepare(" SELECT * FROM `work` WHERE `id_prepod`= ? AND `name_work`=? ORDER BY `id_work` DESC LIMIT 1");
-    $query->execute([$prepod_id, $test_name]);
-    $array = $query->fetchAll();
-    $info = $query->errorInfo();
-    $work_id = $array[0][0];
-    $question_arr = [];
-    $answer_arr = [];
-    $count = 0;
-    $query = $db->prepare("SELECT * FROM `question` WHERE `id_work`=? ");
-    $query->execute([$work_id]);
-    $array = $query->fetchAll();
-    for ($i = 0; $i < $number; $i++) {//массив Только вопросов
-        $quant = $test_array[$i][2];
-        $answer_quantity = count($quant);
-        $question_arr[$i][0] = $test_array[$i][0];
-        $question_arr[$i][1] = $work_id;
-        $question_arr[$i][2] = $test_array[$i][1];
-        if ($answer_quantity > 1)
-            $question_arr[$i][3] = "test";
-        else
-            $question_arr[$i][3] = "one_answer";
-    }
-    //
-    $sql = "INSERT INTO `question`(`id_inTest`, `id_work`, `question`, `type`) VALUES ";//Запрос в строку для оформления цикла
-    $massive = [];// однтсрончый массив
-    for ($i = 0; $i < $number; $i++) {
-        array_push($massive, $question_arr[$i][0], $question_arr[$i][1], $question_arr[$i][2], $question_arr[$i][3]);
-    }
-
-    for ($i = 0; $i < $number; $i++) {
-        $sql_question_dop = "(?,?,?,?),";//стррока для добавления в базу через pdo
-        $sql = $sql . $sql_question_dop;// полная строка запроса pdo
-    }
-
-    save_db($db, $sql, $massive);
-//    обрезаем последний символ
-
-
-    $answer_massive = [];
-    $massive = [];
-    for ($i = 0; $i < $number; $i++) {
-        $arr[$i] = $test_array[$i][2];
-        $number_arr = count($arr[$i]);
-
-        for ($j = 0; $j < $number_arr; $j++) {
-            array_push($answer_massive, $arr[$i][$j]);
-        }
-    }
-
-    for ($i = 0; $i < count($answer_massive); $i++) {
-        $arr[$i][0] = $answer_massive[$i][3];
-        $arr[$i][1] = $answer_massive[$i][1];
-        $arr[$i][2] = $work_id;
-        $arr[$i][3] = $answer_massive[$i][2];
-    }
-
-    for ($i = 0; $i < count($arr); $i++) {
-        array_push($massive, $arr[$i][0], $arr[$i][2], $arr[$i][1], $arr[$i][3]);
-    }
-
-    $sql = "INSERT INTO `answer` (`question_id`,`work_id`, `answer`, `correct`) VALUES ";
-    for ($i = 0; $i < count($arr); $i++) {
-        $sql_question_dop = "(?,?,?,?),";//стррока для добавления в базу через pdo
-        $sql = $sql . $sql_question_dop;
-    }
-    save_db($db, $sql, $massive);
-
-    //полная строка запроса pdo
-}
-
-function save_db($db, $sql, $massive)
-{
-    $sql = mb_substr($sql, 0, -1);
-    $query = $db->prepare($sql);
-    $query->execute($massive);
-    $info = $query->errorInfo();
-    echo ($info);
-}
-
-function test_array($db)
-{
-
-    $work_id = $_POST['id_work'];
+    $work_id=$_POST['id_work'];
     $query = $db->prepare("SELECT * FROM `question` INNER JOIN `answer` ON question.id_work = answer.work_id AND question.id_inTest = answer.question_id WHERE `id_work`= ?  ");
     $query->execute([$work_id]);
     $info = $query->errorInfo();
@@ -184,11 +44,11 @@ function test_array($db)
         }
     }
 
-    $question_massive[$f] = [$question_dbArray[0][1], $question_dbArray[0][3], $question_dbArray[0][4]];//Создается массив с первым вопросом из теста
+    $question_massive[$f] = [$question_dbArray[0][1], $question_dbArray[0][3]];//Создается массив с первым вопросом из теста
     $count = 1;// счетчик вопросов
     for ($i = 0; $i < $question_quantity; $i++) {
         if ($question_dbArray[$i][1] != $question_massive[$f][0]) {
-            $question_massive[$f + 1] = [$question_dbArray[$i][1], $question_dbArray[$i][3], $question_dbArray[$i][4]];
+            $question_massive[$f + 1] = [$question_dbArray[$i][1], $question_dbArray[$i][3]];
             $f++;
             $count++;
         }
@@ -196,7 +56,7 @@ function test_array($db)
     for ($g = 0; $g < $count; $g++) {
         array_push($question_massive[$g], $array_massive[$g]);
     }
-    echo json_encode($question_massive, JSON_UNESCAPED_UNICODE);
+    echo json_encode($question_massive,JSON_UNESCAPED_UNICODE);
 }
 
 function show_test($db)
@@ -216,7 +76,7 @@ function show_test($db)
 }
 
 function question_view($work_id, $db)
-{
+{//функция для отрисовки вопроса по id
     $query = $db->prepare("SELECT * FROM `question` INNER JOIN `answer` ON question.id_work = answer.work_id AND question.id_inTest = answer.question_id WHERE `id_work`= ?  ");
     $query->execute([$work_id]);
     $info = $query->errorInfo();
@@ -256,15 +116,16 @@ function question_view($work_id, $db)
         <input type="hidden" id="work_id" value="' . $work_id . '">
             </div>
 <br>
+
 <!-- Modal -->
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" >
     <div class="modal-dialog">
-        <div class="modal-content" style="background-color:rgb(4,146,171); width:auto;">
+        <div class="modal-content" style="background-color:rgb(4,146,171);">
             <div class="modal-header"  style="background-color:rgb(4,146,171,0.8);">
                 <h1 class="modal-title fs-5" id="staticBackdropLabel">Редактор Вопроса</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body d-flex flex-column" id="question_modal"  style="background-color:rgb(4,146,171,0.8); border-color: rgb(19, 19, 60, 0.8); width:auto;">
+            <div class="modal-body d-flex flex-column" id="question_modal"  style="background-color:rgb(4,146,171,0.8); border-color: rgb(19, 19, 60, 0.8);">
             </div>
             <div class="modal-footer"  style="background-color:rgb(4,146,171,0.8);" id="question_modalFooter">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -280,6 +141,87 @@ function question_view($work_id, $db)
     </div>';
 }
 
+function save_test($db)
+{
+    $test_name = $_POST['test_name'];
+    $test_array = $_POST['test_array'];
+    $prepod_id = $_POST['prepod_id'];
+    $number = count($test_array);
+    $query = $db->prepare("INSERT INTO `work`( `id_prepod`, `name_work`, `question_amount`) VALUES (?,?,?)");
+    $query->execute([$prepod_id, $test_name, $number]);
+    $query = $db->prepare(" SELECT * FROM `work` WHERE `id_prepod`= ? AND `name_work`=? ORDER BY `id_work` DESC LIMIT 1");
+    $query->execute([$prepod_id, $test_name]);
+    $array = $query->fetchAll();
+    $info = $query->errorInfo();
+    $work_id = $array[0][0];
+    $question_arr = [];
+    $answer_arr = [];
+    $count = 0;
+    $query = $db->prepare("SELECT * FROM `question` WHERE `id_work`=? ");
+    $query->execute([$work_id]);
+    $array = $query->fetchAll();
+
+
+    for ($i = 0; $i < $number; $i++) {//массив Только вопросов
+        $quant = $test_array[$i][2];
+        $answer_quantity = count($quant);
+
+        $question_arr[$i][0] = $test_array[$i][0];
+        $question_arr[$i][1] = $work_id;
+        $question_arr[$i][2] = $test_array[$i][1];
+        if ($answer_quantity > 1)
+            $question_arr[$i][3] = "test";
+        else
+            $question_arr[$i][3] = "one_answer";
+    }
+    //
+    $sql = "INSERT INTO `question`(`id_inTest`, `id_work`, `question`, `type`) VALUES ";//Запрос в строку для оформления цикла
+    $massive = [];// однтсрончый массив
+    for ($i = 0; $i < $number; $i++) {
+        array_push($massive, $question_arr[$i][0], $question_arr[$i][1], $question_arr[$i][2], $question_arr[$i][3]);
+    }
+
+    for ($i = 0; $i < $number; $i++) {
+        $sql_question_dop = "(?,?,?,?),";//стррока для добавления в базу через pdo
+        $sql = $sql . $sql_question_dop;// полная строка запроса pdo
+    }
+
+    save_db($db, $sql, $massive);
+//    обрезаем последний символ
+
+
+    $answer_massive = [];
+    $massive = [];
+    for ($i = 0; $i < $number; $i++) {
+        $arr[$i] = $test_array[$i][2];
+        $number_arr = count($arr[$i]);
+
+        for ($j = 0; $j < $number_arr; $j++) {
+            array_push($answer_massive, $arr[$i][$j]);
+        }
+    }
+    for ($i = 0; $i < count($answer_massive); $i++) {
+        $arr[$i][0] = $answer_massive[$i][3];
+        $arr[$i][1] = $answer_massive[$i][1];
+        $arr[$i][2] = $work_id;
+        $arr[$i][3] = $answer_massive[$i][2];
+    }
+    for ($i = 0; $i < count($arr); $i++) {
+        array_push($massive, $arr[$i][0], $arr[$i][2], $arr[$i][1], $arr[$i][3]);
+    }
+
+
+    $sql = "INSERT INTO `answer` (`question_id`,`work_id`, `answer`, `correct`) VALUES ";
+    for ($i = 0; $i < count($arr); $i++) {
+        $sql_question_dop = "(?,?,?,?),";//стррока для добавления в базу через pdo
+        $sql = $sql . $sql_question_dop;
+    }
+    save_db($db, $sql, $massive);
+
+    //полная строка запроса pdo
+
+
+}
 
 function test_nameView($work_id, $db)
 {
@@ -302,12 +244,20 @@ function edit_test($db)
 
 function test_list($db)
 {
-    session_destroy();
     $query = $db->prepare("SELECT * FROM `work` ORDER BY `id_work` ");
     $query->execute();
     $array = $query->fetchAll();
+
     echo json_encode($array);
+
 }
 
+function save_db($db, $sql, $massive)
+{
+    $sql = mb_substr($sql, 0, -1);
+    $query = $db->prepare($sql);
+    $query->execute($massive);
+    $info = $query->errorInfo();
+}
 
 
